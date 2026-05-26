@@ -1,13 +1,13 @@
-package com.mid.base.sys.asset.sound;
+package com.mid.base.sys.asset;
 
 
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SoundManager {
 
@@ -17,12 +17,35 @@ public class SoundManager {
     private float bgmVolume = 0.0f;
     private boolean sfxEnable = true;
 
+    public static float volume = 0.5f;
+
     private File externalRoot = null;
 
-    private static ArrayList<SoundAsset> soundAssets = new ArrayList<>();
+    private static final ConcurrentLinkedQueue<SoundAsset> soundQueue = new ConcurrentLinkedQueue<>();
+    private static Map<String, LoopSoundAsset> loopSoundAssetMap = new HashMap<>();
+
 
     public SoundManager() {
         setBgmVolume(0.5f);
+    }
+
+    public static void startLoopSound(String str) {
+        LoopSoundAsset l = loopSoundAssetMap.get(str);
+        if (l!=null) {
+            l.clip.start();
+        } else {
+            System.err.println("[ERROR] not found loopSound.");
+        }
+    }
+
+    public static void stopLoopSound(String str) {
+        LoopSoundAsset l = loopSoundAssetMap.get(str);
+        if (l!=null) {
+            l.clip.stop();
+            l.clip.setFramePosition(0);
+        } else {
+            System.err.println("[ERROR] not found loopSound.");
+        }
     }
 
     @Deprecated
@@ -31,11 +54,29 @@ public class SoundManager {
     }
 
     public static void update() {
-        if (soundAssets.isEmpty()) {return;}
+        if (soundQueue.isEmpty()) return;
 
-        for (SoundAsset s : soundAssets) {
-            //s.
+        SoundAsset s;
+        while ((s = soundQueue.poll()) != null) {
+            try {
+                Clip clip = AudioSystem.getClip();
+                clip.open(s.format, s.audioData, 0, s.audioData.length);
+                setVolume(clip, SoundManager.volume);
+                clip.addLineListener(e -> {
+                    if (e.getType() == LineEvent.Type.STOP) {
+                        clip.close();
+                    }
+                });
+                clip.start();
+            } catch (Exception e) {
+                System.err.println("[Sound] Dynamic play failed for: " + s.finalPath);
+                e.printStackTrace();
+            }
         }
+    }
+
+    public static void playInstanceSound(SoundAsset clip) {
+        soundQueue.add(clip);
     }
 
     @Deprecated
@@ -134,7 +175,7 @@ public class SoundManager {
     }
 
     @Deprecated
-    private void setVolume(Clip clip, float volume) {
+    public static void setVolume(Clip clip, float volume) {
         if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
             FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 

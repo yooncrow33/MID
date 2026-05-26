@@ -1,5 +1,7 @@
 package com.mid.base.sys.mouse;
 
+import com.mid.base.sys.asset.AssetManager;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -18,7 +20,7 @@ public class MouseListener extends MouseAdapter implements MouseWheelListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-
+        AssetManager.getSound("click").play();
     }
 
 }

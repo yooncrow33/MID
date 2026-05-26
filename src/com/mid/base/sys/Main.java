@@ -1,5 +1,6 @@
 package com.mid.base.sys;
 
+import com.mid.base.sys.asset.SoundManager;
 import com.mid.base.sys.mouse.Mouse;
 import com.mid.base.sys.mouse.MouseListener;
 import com.mid.base.sys.view.IFrameSize;
@@ -16,7 +17,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public final class Main extends JPanel implements IFrameSize, IPause {
-    JFrame frame = new JFrame("dsce Pre-Alpha 0.0.0");
+    JFrame frame = new JFrame("god.......");
 
     private long lastTime;
 
@@ -92,7 +93,7 @@ public final class Main extends JPanel implements IFrameSize, IPause {
     }
 
     private void update(double deltaTime) {
-
+        SoundManager.update();
     }
 
     @Override public boolean isPause() {return pause;}
@@ -116,6 +117,7 @@ public final class Main extends JPanel implements IFrameSize, IPause {
     }
 
     public static void main(String[] args) {
-        new Main();
+        Main m = new Main();
+        Mouse.wakeUp(m);
     }
 }

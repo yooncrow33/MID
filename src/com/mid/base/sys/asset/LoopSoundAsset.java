@@ -1,17 +1,21 @@
-package com.mid.base.sys.asset.sound;
+package com.mid.base.sys.asset;
 
 import javax.sound.sampled.*;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
-
-public class SoundAsset {
+public class LoopSoundAsset {
     final String finalPath;
-    Clip clip;
-    public SoundAsset(String path) throws Exception {
-        finalPath = "/" + path;
+    final Clip clip;
+
+    public LoopSoundAsset(String path) throws Exception {
+        this.finalPath = "/" + path;
         clip = loadClip();
     }
+
+    public void stop() {SoundManager.startLoopSound(finalPath);}
+    public void start() {SoundManager.stopLoopSound(finalPath);}
 
     private Clip loadClip()
             throws IOException, UnsupportedAudioFileException, LineUnavailableException {
@@ -27,4 +31,3 @@ public class SoundAsset {
         return clip;
     }
 }
-
