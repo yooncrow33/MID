@@ -1,5 +1,6 @@
 package com.mid.base.sys;
 
+import com.mid.base.core.Game;
 import com.mid.base.sys.asset.SoundManager;
 import com.mid.base.sys.mouse.Mouse;
 import com.mid.base.sys.mouse.MouseListener;
@@ -23,8 +24,9 @@ public final class Main extends JPanel implements IFrameSize, IPause {
 
     private boolean pause = false;
 
-    private Console console = new Console();
+    public Game game = new Game();
 
+    private Console console = new Console();
     public Console getConsole() {
         return console;
     }
@@ -93,7 +95,9 @@ public final class Main extends JPanel implements IFrameSize, IPause {
     }
 
     private void update(double deltaTime) {
+        double dt = deltaTime / (16.0 / 1000.0);
         SoundManager.update();
+        game.update(dt);
     }
 
     @Override public boolean isPause() {return pause;}
@@ -112,8 +116,9 @@ public final class Main extends JPanel implements IFrameSize, IPause {
         d2.translate(viewMetrics.getCurrentXOffset(), viewMetrics.getCurrentYOffset());
         d2.scale(viewMetrics.getCurrentScale(), viewMetrics.getCurrentScale());
 
-        console.render(g);
+        game.render(g);
 
+        console.render(g);
     }
 
     public static void main(String[] args) {
