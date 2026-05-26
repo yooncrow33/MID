@@ -10,13 +10,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SoundManager {
-
-    private final Map<String, Clip> bgmMap = new HashMap<>();
-    private Clip currentBgm;
-
-    private float bgmVolume = 0.0f;
-    private boolean sfxEnable = true;
-
     public static float volume = 0.5f;
 
     private File externalRoot = null;
@@ -24,10 +17,6 @@ public class SoundManager {
     private static final ConcurrentLinkedQueue<SoundAsset> soundQueue = new ConcurrentLinkedQueue<>();
     private static Map<String, LoopSoundAsset> loopSoundAssetMap = new HashMap<>();
 
-
-    public SoundManager() {
-        setBgmVolume(0.5f);
-    }
 
     public static void startLoopSound(String str) {
         LoopSoundAsset l = loopSoundAssetMap.get(str);
@@ -77,75 +66,6 @@ public class SoundManager {
 
     public static void playInstanceSound(SoundAsset clip) {
         soundQueue.add(clip);
-    }
-
-    @Deprecated
-    public void play(String path) {
-        if (!sfxEnable) return;
-        try {
-            Clip clip = loadClip(path);
-            setVolume(clip, 0.5F);
-
-            clip.addLineListener(e -> {
-                if (e.getType() == LineEvent.Type.STOP) {
-                    clip.close();
-                }
-            });
-
-            clip.start();
-        } catch (Exception e) {
-            System.err.println("[Sound] play failed: " + path);
-            e.printStackTrace();
-        }
-    }
-
-    @Deprecated
-    public void loopBgm(String path) {
-        stopBgm();
-
-        try {
-            Clip clip = bgmMap.computeIfAbsent(path, p -> {
-                try {
-                    return loadClip(p);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-
-            setVolume(clip, bgmVolume);
-            clip.loop(Clip.LOOP_CONTINUOUSLY);
-            clip.start();
-
-            currentBgm = clip;
-        } catch (Exception e) {
-            System.err.println("[Sound] BGM failed: " + path);
-            e.printStackTrace();
-        }
-    }
-
-    public void stopBgm() {
-        if (currentBgm != null) {
-            currentBgm.stop();
-            currentBgm.setFramePosition(0);
-            currentBgm = null;
-        }
-    }
-
-    public void setBgmVolume(float db) {
-        bgmVolume = db;
-        if (currentBgm != null) {
-            setVolume(currentBgm, db);
-        }
-    }
-
-    public void setSfxVolume(boolean b) {
-        sfxEnable = b;
-    }
-
-    public void dispose() {
-        stopBgm();
-        for (Clip clip : bgmMap.values()) clip.close();
-        bgmMap.clear();
     }
 
     private Clip loadClip(String path)
